@@ -1,0 +1,36 @@
+# ================= SpiderOS =================
+[theme]
+mode           = "dark"
+source         = "custom"
+custom_palette = "SpiderOS"
+
+[bar.default]
+position           = "top"
+margin_ends        = -2     # oculta los bordes laterales
+margin_edge        = 0      # borde de arriba visible
+radius             = 0      # esquinas cuadradas
+background_opacity = 1.0
+shadow             = true
+contact_shadow     = false
+border             = "#266A88"
+border_width       = 2
+
+[shell.shadow]
+alpha = 0.15    # intensidad de la sombra (0 = nada, 1 = muy oscura)
+
+[bar]
+order = ["default", "inferior"]
+
+[bar.inferior]
+position           = "bottom"
+thickness          = 30
+margin_ends        = -2     # oculta los bordes laterales
+margin_edge        = -2     # oculta el borde de abajo -> solo queda el de arriba
+radius             = 0
+background_opacity = 1.0
+shadow             = false
+border             = "#266A88"
+border_width       = 2
+start              = ["taskbar"]
+center             = []
+end                = ["sysmon"]
