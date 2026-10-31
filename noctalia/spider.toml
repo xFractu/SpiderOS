@@ -34,3 +34,12 @@ border_width       = 2
 start              = ["taskbar"]
 center             = []
 end                = ["sysmon"]
+
+# Recuadro con los widgets de la derecha de la barra de arriba
+[[bar.default.capsule_group]]
+id      = "sistema"
+members = ["media", "tray", "notifications", "clipboard", "network", "bluetooth",
+           "volume", "brightness", "battery", "control-center", "session"]
+fill    = "#1B4E6F"
+radius  = 0
+padding = 6
