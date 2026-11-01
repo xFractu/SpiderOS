@@ -210,3 +210,6 @@ hl.bind("SUPER + V", function()
 
     hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
 end)
+
+-- Super + C ya no cierra ventanas (se cierra con Super + Q)
+hl.unbind("SUPER + C")
