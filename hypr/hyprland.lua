@@ -51,7 +51,7 @@ local menu = "hyprlauncher"
 --
 hl.on("hyprland.start", function()
     hl.exec_cmd("sh -c 'hyprpm reload -n && hyprctl reload'")
-     hl.exec_cmd("noctalia")
+     hl.exec_cmd("sh -c 'sleep 1; noctalia > /tmp/noctalia.log 2>&1'")
 --   hl.exec_cmd(terminal)
 --   hl.exec_cmd("nm-applet")
 --   hl.exec_cmd("waybar & hyprpaper & firefox")

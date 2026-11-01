@@ -10,7 +10,6 @@ hl.window_rule({
     name = "todo-flotante",
     match = { class = ".*" },
     float = true,
-    maximize = true,
     size = "monitor_w*0.45 monitor_h*0.70",
     center = true,
 })
@@ -132,3 +131,82 @@ end)
 -- Explorador de archivos
 hl.unbind("SUPER + E")
 hl.bind("SUPER + E", hl.dsp.exec_cmd("thunar"))
+
+-- ---------- Ventana maximizada al frente al darle foco ----------
+-- Al enfocar una ventana maximizada (clic o Alt+Tab), las demás del escritorio pasan atrás
+hl.on("window.active", function(w)
+    if not w or not w.fullscreen or w.fullscreen == 0 or not w.workspace then
+        return
+    end
+    for _, otra in ipairs(hl.get_windows()) do
+        if otra.address ~= w.address and otra.floating
+           and otra.workspace and otra.workspace.id == w.workspace.id then
+            hl.dispatch(hl.dsp.window.alter_zorder({ mode = "bottom", window = otra }))
+        end
+    end
+end)
+
+-- ---------- Foco al hacer clic (no al pasar el mouse) ----------
+-- 2 = el teclado solo cambia de ventana con clic; el scroll sigue funcionando al pasar el mouse
+hl.config({
+    input = { follow_mouse = 2 },
+})
+
+-- ---------- El mouse no se mueve solo al cambiar de ventana ----------
+hl.config({
+    cursor = { no_warps = true },
+})
+
+-- ---------- Super + Shift + V: todo el escritorio a cuadrícula (o de vuelta a flotante) ----------
+local modoCuadricula = {}   -- escritorios en modo cuadrícula
+hl.bind("SUPER + SHIFT + V", function()
+    local activa = hl.get_active_window()
+    if not activa or not activa.workspace then return end
+    local idEspacio = activa.workspace.id
+
+    -- ventanas de este escritorio
+    local delEspacio, hayFlotantes = {}, false
+    for _, w in ipairs(hl.get_windows()) do
+        if w.workspace and w.workspace.id == idEspacio then
+            table.insert(delEspacio, w)
+            if w.floating then hayFlotantes = true end
+        end
+    end
+
+    -- si hay flotantes -> todas a cuadrícula; si no -> todas flotantes
+    local accion = hayFlotantes and "unset" or "set"
+    modoCuadricula[idEspacio] = (accion == "unset")
+    for _, w in ipairs(delEspacio) do
+        if w.fullscreen and w.fullscreen > 0 then
+            hl.dispatch(hl.dsp.window.fullscreen({ mode = "maximized", action = "unset", window = w }))
+        end
+        hl.dispatch(hl.dsp.window.float({ action = accion, window = w }))
+    end
+end)
+
+-- ---------- Noctalia vuelve sola al reconectar el monitor ----------
+-- Al cambiar el monitor de entrada (HDMI <-> DP) Noctalia se cierra; al volver el monitor se reinicia.
+hl.on("monitor.added", function()
+    hl.exec_cmd("sh -c 'sleep 1; pkill -x noctalia; noctalia > /dev/null 2>&1'")
+end)
+
+-- Ventanas nuevas: si su escritorio está en modo cuadrícula, entran en cuadrícula
+hl.on("window.open", function(w)
+    if w and w.workspace and modoCuadricula[w.workspace.id] then
+        hl.dispatch(hl.dsp.window.float({ action = "unset", window = w }))
+    end
+end)
+
+-- ---------- Super + V respeta el modo cuadrícula del escritorio ----------
+hl.unbind("SUPER + V")
+hl.bind("SUPER + V", function()
+    local w = hl.get_active_window()
+    if not w or not w.workspace then return end
+
+    if modoCuadricula[w.workspace.id] and not w.floating then
+        hl.exec_cmd("notify-send -a SpiderOS -t 2500 'Modo cuadrícula' 'Este escritorio está en cuadrícula. Usa Super + Shift + V para cambiarlo.'")
+        return
+    end
+
+    hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+end)

@@ -1,0 +1,22 @@
+id          = "fractu/spideros"
+name        = "SpiderOS"
+version     = "1.0.0"
+plugin_api  = 34
+author      = "fractu"
+license     = "MIT"
+icon        = "spider"
+description = "Widgets de SpiderOS: pestañas de ventanas para Hyprland y memoria en MB."
+tags        = ["hyprland", "taskbar", "sysmon"]
+dependencies = ["hyprland"]
+
+# Pestañas de las ventanas del escritorio actual
+[[widget]]
+id    = "pestanas"
+entry = "pestanas.luau"
+hover_highlight = false
+
+# MEM: 672.4M
+[[widget]]
+id    = "mem"
+entry = "mem.luau"
+hover_highlight = false

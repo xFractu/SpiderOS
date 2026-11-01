@@ -5,8 +5,12 @@ source         = "custom"
 custom_palette = "SpiderOS"
 
 [bar.default]
+start              = ["margen_izq", "logo", "launcher", "wallpaper", "workspaces"]
+padding            = 0      # sin margen en los extremos: el recuadro queda pegado a la derecha
+capsule_thickness  = 1.0    # recuadro del mismo alto que la barra
+end                = ["group:sistema"]
 position           = "top"
-margin_ends        = -2     # oculta los bordes laterales
+margin_ends        = -2     # oculta los bordes de los lados
 margin_edge        = 0      # borde de arriba visible
 radius             = 0      # esquinas cuadradas
 background_opacity = 1.0
@@ -22,24 +26,72 @@ alpha = 0.15    # intensidad de la sombra (0 = nada, 1 = muy oscura)
 order = ["default", "inferior"]
 
 [bar.inferior]
+padding            = 30     # espacio en las orillas izquierda y derecha
+font_scale         = 0.8    # letra más pequeña
+widget_spacing     = 18     # espacio entre widgets
 position           = "bottom"
 thickness          = 30
 margin_ends        = -2     # oculta los bordes laterales
-margin_edge        = -2     # oculta el borde de abajo -> solo queda el de arriba
+margin_edge        = 0      # borde de abajo visible
 radius             = 0
 background_opacity = 1.0
 shadow             = false
 border             = "#266A88"
 border_width       = 2
-start              = ["taskbar"]
-center             = []
-end                = ["sysmon"]
+start              = ["memoria"]
+center             = ["pestanas"]
+end                = ["cpu", "temp"]
 
 # Recuadro con los widgets de la derecha de la barra de arriba
 [[bar.default.capsule_group]]
 id      = "sistema"
 members = ["media", "tray", "notifications", "clipboard", "network", "bluetooth",
            "volume", "brightness", "battery", "control-center", "session"]
-fill    = "#1B4E6F"
+fill    = "#0D2434"
 radius  = 0
 padding = 6
+
+# ---------- Widgets de la barra inferior ----------
+[widget.mem]
+type          = "sysmon"
+stat          = "ram_used"
+visualization = "none"
+show_glyph    = false
+custom_label  = "MEM:"
+
+[widget.cpu]
+type          = "sysmon"
+stat          = "cpu_usage"
+custom_label  = "CPU:"
+
+[widget.temp]
+type          = "sysmon"
+stat          = "cpu_temp"
+visualization = "none"
+show_glyph    = false
+custom_label  = "TEMP:"
+
+[widget.pestanas]
+type    = "fractu/spideros:pestanas"
+capsule = false
+
+[widget.memoria]
+type    = "fractu/spideros:mem"
+capsule = false
+
+# ---------- Logo en la barra superior ----------
+[widget.logo]
+scale        = 1.4
+type         = "custom_button"
+custom_image = "/home/fractu/SpiderOS/assets/logo.png"
+capsule      = false
+tooltip      = "SpiderOS"
+
+[widget.margen_izq]
+type   = "spacer"
+length = 12
+
+# ---------- Colores de SpiderOS en las apps GTK (Thunar, etc.) ----------
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids              = ["gtk3", "gtk4"]

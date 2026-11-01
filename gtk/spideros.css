@@ -1,0 +1,15 @@
+/* SpiderOS: fondo del área de archivos de Thunar igual al de la terminal */
+.thunar .view,
+.thunar iconview,
+.thunar treeview.view,
+.thunar scrolledwindow viewport {
+    background-color: #05111D;
+    color: #7DB3BD;
+}
+
+.thunar .view:selected,
+.thunar iconview:selected,
+.thunar treeview.view:selected {
+    background-color: #266A88;
+    color: #D6EAF0;
+}
