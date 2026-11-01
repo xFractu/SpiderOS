@@ -213,3 +213,4 @@ end)
 
 -- Super + C ya no cierra ventanas (se cierra con Super + Q)
 hl.unbind("SUPER + C")
+
