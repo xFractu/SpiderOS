@@ -79,6 +79,9 @@ if [ -z "$WAYLAND_DISPLAY" ] && [ "$XDG_VTNR" = 1 ]; then
 fi
 PERFIL
 
+# ---------- Comandos cortos (rnoct, rfire) ----------
+grep -qs "SpiderOS/shell/alias.sh" "$HOME/.bashrc" || echo "[ -f $REPO/shell/alias.sh ] && source $REPO/shell/alias.sh" >> "$HOME/.bashrc"
+
 # ---------- 5. Plugins ----------
 if [[ $SOLO_ENLACES -eq 0 ]]; then
     azul "==> Plugin spider-bars (Hyprland)"

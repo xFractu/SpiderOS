@@ -187,7 +187,7 @@ end)
 -- ---------- Noctalia vuelve sola al reconectar el monitor ----------
 -- Al cambiar el monitor de entrada (HDMI <-> DP) Noctalia se cierra; al volver el monitor se reinicia.
 hl.on("monitor.added", function()
-    hl.exec_cmd("sh -c 'sleep 1; pkill -x noctalia; noctalia > /dev/null 2>&1'")
+    hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/noctalia-volver.sh")
 end)
 
 -- Ventanas nuevas: si su escritorio está en modo cuadrícula, entran en cuadrícula
