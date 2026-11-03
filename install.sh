@@ -104,4 +104,37 @@ azul ""
 azul "==> SpiderOS instalado. Reinicia con: reboot"
 echo "    Después de actualizar Hyprland (pacman -Syu) corre: hyprpm update -f"
 [[ -d "$RESPALDO" ]] && echo "    Tus archivos anteriores quedaron en: $RESPALDO"
+
+# ---------- Neovim (tu config: xFractu/nvim-fractu) ----------
+NVIM_REPO="git@github.com:xFractu/nvim-fractu.git"
+if [[ $SOLO_ENLACES -eq 0 ]]; then
+    azul "==> Neovim"
+    sudo pacman -S --needed neovim nodejs npm ripgrep fd unzip
+    npm config set prefix "$HOME/.local"          # npm sin sudo (evita EACCES)
+fi
+if [[ -d "$CONFIG/nvim/.git" ]]; then
+    echo "   ok   $CONFIG/nvim ya está clonado, actualizando"
+    git -C "$CONFIG/nvim" pull --ff-only || rojo "   no pude actualizar ~/.config/nvim (¿cambios sin subir?)"
+else
+    if [[ -e "$CONFIG/nvim" ]]; then
+        mkdir -p "$RESPALDO"; mv "$CONFIG/nvim" "$RESPALDO/"
+        echo "   respaldo de $CONFIG/nvim -> $RESPALDO/"
+    fi
+    git clone "$NVIM_REPO" "$CONFIG/nvim"
+fi
+mkdir -p "$HOME/.local/share/nvim" && touch "$HOME/.local/share/nvim/dark_modern_on"   # colores Dark Modern
+
+# ---------- VS Code (colores SpiderOS) ----------
+if [[ $SOLO_ENLACES -eq 0 ]] && ! command -v code >/dev/null; then
+    azul "==> VS Code"
+    if command -v yay >/dev/null; then
+        yay -S --needed visual-studio-code-bin
+    else
+        rojo "   no encontré yay: instala VS Code a mano y vuelve a correr ./install.sh"
+    fi
+fi
+azul "==> Colores de VS Code"
+mkdir -p "$CONFIG/Code/User"
+python3 "$REPO/vscode/aplicar.py" || rojo "   no se pudieron aplicar los colores de VS Code"
+
 exit 0
