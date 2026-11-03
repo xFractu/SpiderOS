@@ -15,3 +15,6 @@ rfire() {
     firefox > /dev/null 2>&1 & disown
     echo "Firefox reiniciado"
 }
+
+# Programas instalados por npm (y otros) en la carpeta personal
+export PATH="$HOME/.local/bin:$PATH"
