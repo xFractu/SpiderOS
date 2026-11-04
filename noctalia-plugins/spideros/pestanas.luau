@@ -142,9 +142,11 @@ end
 -- ---------- Datos de Hyprland ----------
 local SEPARADOR = "@@SPIDEROS@@"
 
+local SALIDA = nil   -- pantalla de esta barra (ej. HDMI-A-1)
+
 local function refrescar()
   noctalia.runAsync(
-    "hyprctl -j clients; echo '" .. SEPARADOR .. "'; hyprctl -j activeworkspace; echo '" .. SEPARADOR .. "'; hyprctl -j activewindow",
+    "hyprctl -j clients; echo '" .. SEPARADOR .. "'; hyprctl -j monitors; echo '" .. SEPARADOR .. "'; hyprctl -j activewindow",
     function(r)
       if r.exitCode ~= 0 or r.stdout == nil then return end
       local partes = {}
@@ -157,7 +159,14 @@ local function refrescar()
       local ventana  = noctalia.json.decode(partes[3] or "")
       if type(clientes) ~= "table" then return end
 
-      local idEspacio = (type(espacio) == "table") and espacio.id or nil
+      local idEspacio = nil
+      if type(espacio) == "table" then
+        for _, m in ipairs(espacio) do
+          if (SALIDA and m.name == SALIDA) or (not SALIDA and m.focused) then
+            idEspacio = m.activeWorkspace and m.activeWorkspace.id or nil
+          end
+        end
+      end
       local nuevas = {}
       for _, c in ipairs(clientes) do
         local enEspacio = (idEspacio == nil) or (c.workspace and c.workspace.id == idEspacio)
@@ -198,6 +207,8 @@ local function refrescar()
 end
 
 function update()
+  local okS, n = pcall(function() return barWidget.outputName() end)
+  if okS and n and n ~= "" then SALIDA = n end
   noctalia.setUpdateInterval(400)
   refrescar()
 end

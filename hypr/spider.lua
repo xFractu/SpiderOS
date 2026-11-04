@@ -215,3 +215,9 @@ hl.unbind("SUPER + C")
 -- Evita el parpadeo de las barras (bug de hyprbars) al usar el selector de Alt+Tab.
 -- 0.99 = las ventanas inactivas al 99% de opacidad; no se nota a simple vista.
 hl.config({ decoration = { inactive_opacity = 0.99 } })
+
+-- Super + P: modo de pantallas (solo una / extender / duplicar)
+hl.bind("SUPER + P", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/pantallas.sh"))
+
+-- ---------- Posición de monitores (la guarda Super + P, por modelo de monitor) ----------
+pcall(dofile, os.getenv("HOME") .. "/.local/state/spideros/monitores.lua")

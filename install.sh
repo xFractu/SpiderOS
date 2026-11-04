@@ -23,7 +23,7 @@ rojo() { printf '\033[38;2;224;88;92m%s\033[0m\n' "$*"; }
 PAQUETES=(
     hyprland hyprpm xdg-desktop-portal-hyprland
     noctalia kitty firefox
-    grim slurp wl-clipboard jq libnotify imagemagick
+    grim slurp wl-clipboard jq fuzzel libnotify imagemagick
     ttf-jetbrains-mono-nerd
     thunar gvfs tumbler ffmpegthumbnailer adw-gtk-theme
     git cmake meson cpio pkgconf gcc
