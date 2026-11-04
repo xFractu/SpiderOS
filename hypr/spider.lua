@@ -119,10 +119,7 @@ hl.bind("SUPER + ALT + minus", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hy
 -- ---------- Alt + Tab ----------
 -- Alt + Tab          -> siguiente ventana
 -- Alt + Shift + Tab  -> ventana anterior
-hl.bind("ALT + Tab", function()
-    hl.dispatch(hl.dsp.window.cycle_next())
-    hl.dispatch(hl.dsp.window.bring_to_top())
-end)
+hl.bind("ALT + TAB", hl.dsp.exec_cmd("noctalia msg window-switcher hold"))   -- selector de ventanas de Noctalia
 hl.bind("ALT + SHIFT + Tab", function()
     hl.dispatch(hl.dsp.window.cycle_next({ next = false }))
     hl.dispatch(hl.dsp.window.bring_to_top())
@@ -214,3 +211,7 @@ end)
 -- Super + C ya no cierra ventanas (se cierra con Super + Q)
 hl.unbind("SUPER + C")
 
+
+-- Evita el parpadeo de las barras (bug de hyprbars) al usar el selector de Alt+Tab.
+-- 0.99 = las ventanas inactivas al 99% de opacidad; no se nota a simple vista.
+hl.config({ decoration = { inactive_opacity = 0.99 } })
