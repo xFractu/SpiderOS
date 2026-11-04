@@ -221,3 +221,9 @@ hl.bind("SUPER + P", hl.dsp.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts
 
 -- ---------- Posición de monitores (la guarda Super + P, por modelo de monitor) ----------
 pcall(dofile, os.getenv("HOME") .. "/.local/state/spideros/monitores.lua")
+
+-- ---------- Bloqueo (pantalla de bloqueo de Noctalia) ----------
+hl.bind("SUPER + L", hl.dsp.exec_cmd("noctalia msg session lock"))
+hl.on("hyprland.start", function()
+    hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/bloquear-inicio.sh")
+end)
