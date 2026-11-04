@@ -227,3 +227,88 @@ hl.bind("SUPER + L", hl.dsp.exec_cmd("noctalia msg session lock"))
 hl.on("hyprland.start", function()
     hl.exec_cmd(os.getenv("HOME") .. "/.config/hypr/scripts/bloquear-inicio.sh")
 end)
+
+-- Super + D: lanzador de apps de Noctalia (antes la lupa de la barra)
+hl.bind("SUPER + D", hl.dsp.exec_cmd("noctalia msg panel-toggle launcher"))
+
+-- ---------- Escritorios por monitor ----------
+-- Cada pantalla tiene sus propios escritorios 1..10:
+--   principal: 1-10 | segunda: 11-20 | tercera: 21-30 ...
+-- Super + N -> escritorio N de la pantalla donde estás
+-- Super + Shift + N -> manda la ventana activa a ese escritorio
+-- La principal es la que se elige en Super + P (si no, la de la laptop).
+
+local function leer_principal()
+    local ok, d = pcall(function()
+        local f = io.open(os.getenv("HOME") .. "/.local/state/spideros/monitores.conf", "r")
+        if not f then return nil end
+        local txt = f:read("a"); f:close()
+        return txt:match("principal=([^\n]+)")
+    end)
+    return ok and d or nil
+end
+
+local function monitores_en_orden()
+    local lista = {}
+    for _, m in ipairs(hl.get_monitors()) do table.insert(lista, m) end
+    local prin = leer_principal()
+    local function rango(m)
+        if prin and m.description == prin then return 0 end
+        if not prin and m.name:match("^eDP") then return 0 end
+        return 1
+    end
+    table.sort(lista, function(a, b)
+        local ra, rb = rango(a), rango(b)
+        if ra ~= rb then return ra < rb end
+        return a.name < b.name
+    end)
+    return lista
+end
+
+local function base_de(nombre)
+    for i, m in ipairs(monitores_en_orden()) do
+        if m.name == nombre then return (i - 1) * 10 end
+    end
+    return 0
+end
+
+local function escritorio(n)
+    local mon = hl.get_active_monitor()
+    return tostring(base_de(mon and mon.name or "") + n)
+end
+
+for n = 1, 10 do
+    local tecla = tostring(n % 10)
+    pcall(hl.unbind, "SUPER + " .. tecla)
+    pcall(hl.unbind, "SUPER + SHIFT + " .. tecla)
+    hl.bind("SUPER + " .. tecla, function()
+        hl.dispatch(hl.dsp.focus({ workspace = escritorio(n), on_current_monitor = true }))
+    end)
+    hl.bind("SUPER + SHIFT + " .. tecla, function()
+        hl.dispatch(hl.dsp.window.move({ workspace = escritorio(n) }))
+    end)
+end
+
+-- nombres: el 12 se llama "2", el 23 se llama "3", etc. (para la barra)
+for bloque = 1, 3 do
+    for n = 1, 10 do
+        hl.workspace_rule({ workspace = tostring(bloque * 10 + n), default_name = tostring(n) })
+    end
+end
+
+-- al iniciar o conectar un monitor: cada pantalla en su bloque
+local function acomodar_monitores()
+    local activo = hl.get_active_monitor()
+    for i, m in ipairs(monitores_en_orden()) do
+        local base = (i - 1) * 10
+        local ws = m.active_workspace
+        local id = ws and ws.id or 0
+        if id <= base or id > base + 10 then
+            hl.dispatch(hl.dsp.focus({ monitor = m.name }))
+            hl.dispatch(hl.dsp.focus({ workspace = tostring(base + 1), on_current_monitor = true }))
+        end
+    end
+    if activo then hl.dispatch(hl.dsp.focus({ monitor = activo.name })) end
+end
+hl.on("hyprland.start", acomodar_monitores)
+hl.on("monitor.added", function() acomodar_monitores() end)

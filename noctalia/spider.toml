@@ -5,9 +5,10 @@ source         = "custom"
 custom_palette = "SpiderOS"
 
 [bar.default]
-start              = ["margen_izq", "logo", "launcher", "wallpaper", "workspaces"]
+start              = ["margen_izq", "logo", "workspaces"]
 padding            = 0      # sin margen en los extremos: el recuadro queda pegado a la derecha
 capsule_thickness  = 1.0    # recuadro del mismo alto que la barra
+center             = ["clock"]
 end                = ["group:sistema"]
 position           = "top"
 margin_ends        = -2     # oculta los bordes de los lados
@@ -18,6 +19,7 @@ shadow             = true
 contact_shadow     = false
 border             = "#266A88"
 border_width       = 2
+widget_spacing     = 14     # espacio entre íconos
 
 [shell.shadow]
 alpha = 0.15    # intensidad de la sombra (0 = nada, 1 = muy oscura)
@@ -45,11 +47,11 @@ end                = ["cpu", "temp"]
 # Recuadro con los widgets de la derecha de la barra de arriba
 [[bar.default.capsule_group]]
 id      = "sistema"
-members = ["media", "tray", "notifications", "clipboard", "network", "bluetooth",
-           "volume", "brightness", "battery", "control-center", "session"]
+members = ["wallpaper", "media", "tray", "notifications", "clipboard", "network",
+           "bluetooth", "volume", "brightness", "battery", "session"]
 fill    = "#0D2434"
 radius  = 0
-padding = 6
+padding = 10
 
 # ---------- Widgets de la barra inferior ----------
 [widget.mem]
@@ -87,9 +89,36 @@ custom_image = "/home/fractu/SpiderOS/assets/logo.png"
 capsule      = false
 tooltip      = "SpiderOS"
 
+[widget.logo.actions]
+left = "panel-toggle control-center"
+
 [widget.margen_izq]
 type   = "spacer"
 length = 12
+
+# ---------- Íconos de la barra de arriba: solo ícono, valor al pasar el mouse ----------
+[widget.volume]
+show_label = false
+
+# hora y fecha juntas en el centro de la barra de arriba
+[widget.clock]
+format         = "{:%H:%M}  ·  {:%a %d %b %Y}"
+tooltip_format = "{:%A, %B %d, %Y}"
+
+[widget.network]
+show_label = false
+
+[widget.media]
+hide_when_no_media = true
+
+[widget.brightness]
+peek = true
+
+[widget.bluetooth]
+peek = true
+
+[widget.battery]
+peek = true
 
 # ---------- Colores de SpiderOS en las apps GTK (Thunar, etc.) ----------
 [theme.templates]
@@ -295,6 +324,10 @@ widget_order = [
 
         [lockscreen_widgets.widget.lockscreen-widget-0000000000000009.settings]
         background = false
-        image_path = "/home/fractu/Descargas/logo.png"
+        image_path = "/home/fractu/SpiderOS/assets/logo.png"
         opacity = 1.0
 
+
+# escritorios por monitor: mostrar el nombre ("2") y no el número interno (12)
+[widget.workspaces]
+label_source = "name"
