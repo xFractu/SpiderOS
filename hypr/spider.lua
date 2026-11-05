@@ -95,6 +95,7 @@ if hl.plugin and hl.plugin.hyprbars then
                 bar_text_font              = "JetBrainsMono Nerd Font",
                 bar_text_align             = "left",
                 bar_text_size              = 10,
+                bar_text_weight              = "bold",
                 bar_padding                = 8,
                 bar_button_padding         = 6,
                 button_icon_size           = 120,    -- iconos más grandes
@@ -312,3 +313,73 @@ local function acomodar_monitores()
 end
 hl.on("hyprland.start", acomodar_monitores)
 hl.on("monitor.added", function() acomodar_monitores() end)
+
+-- ---------- Títulos de las barras: "APP - lo que está haciendo" ----------
+-- Terminales: "TERMINAL #1  ~/SpiderOS"   |   Otras: "FIREFOX - Copiar .ssh y ..."
+local TERMINALES = { kitty = true, foot = true, alacritty = true,
+                     ["org.wezfurlong.wezterm"] = true, ["com.mitchellh.ghostty"] = true }
+local NOMBRES = { code = "VSCODE", ["code-oss"] = "VSCODE", ["code-url-handler"] = "VSCODE",
+                  ["org.mozilla.firefox"] = "FIREFOX" }
+local num_terminal = {}   -- dirección de la ventana -> número de terminal
+
+local function nombre_app(clase)
+    clase = clase or ""
+    local n = NOMBRES[clase:lower()]
+    if n then return n end
+    local ultimo = clase:match("([^%.]+)$") or clase   -- org.gnome.Nautilus -> Nautilus
+    if ultimo == "" then return "APP" end
+    return ultimo:upper()
+end
+
+local function siguiente_numero()
+    local usados = {}
+    for _, n in pairs(num_terminal) do usados[n] = true end
+    local i = 1
+    while usados[i] do i = i + 1 end
+    return i
+end
+
+-- quita la cola " — Mozilla Firefox", " - Visual Studio Code", etc.
+local function limpiar_titulo(titulo, app)
+    local t, a = titulo or "", app:lower()
+    for _, sep in ipairs({ " — ", " – ", " - " }) do
+        local pos, ini = nil, 1
+        while true do
+            local i = t:find(sep, ini, true)
+            if not i then break end
+            pos, ini = i, i + 1
+        end
+        if pos then
+            local cola = t:sub(pos + #sep):lower()
+            if cola:find(a, 1, true) or (a == "vscode" and cola:find("visual studio", 1, true)) then
+                t = t:sub(1, pos - 1)
+            end
+        end
+    end
+    return t
+end
+
+local function poner_titulo(w)
+    if not (w and w.mapped and not w.hidden and hl.plugin and hl.plugin.hyprbars and hl.plugin.hyprbars.set_title) then return end
+    local clase = (w.class and w.class ~= "") and w.class or (w.initial_class or "")
+    local titulo
+    if TERMINALES[clase:lower()] then
+        if not num_terminal[w.address] then num_terminal[w.address] = siguiente_numero() end
+        titulo = "TERMINAL #" .. num_terminal[w.address] .. "  " .. (w.title or "")
+    else
+        local app = nombre_app(clase)
+        local t = limpiar_titulo(w.title, app)
+        titulo = (t ~= "" and t:upper() ~= app) and (app .. " - " .. t) or app
+    end
+    pcall(hl.plugin.hyprbars.set_title, w, titulo)
+end
+
+hl.on("window.open", function(w) hl.timer(function() poner_titulo(w) end, { timeout = 150, type = "oneshot" }) end)
+hl.on("window.title", poner_titulo)
+hl.on("window.class", poner_titulo)
+hl.on("window.close", function(w) if w then num_terminal[w.address] = nil end end)
+
+-- al recargar la config: poner título a las ventanas que ya están abiertas
+pcall(function()
+    for _, w in ipairs(hl.get_windows()) do poner_titulo(w) end
+end)
