@@ -141,6 +141,7 @@ COLORES.update({
 AJUSTES = {
   "workbench.colorTheme": "Default Dark Modern",   # colores del código como en Neovim
   "workbench.tree.renderIndentGuides": "always",
+  "window.restoreWindows": "none",   # abrir siempre en la bienvenida
 }
 
 candidatos = [

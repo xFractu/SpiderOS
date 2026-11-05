@@ -52,6 +52,7 @@ members = ["wallpaper", "media", "tray", "notifications", "clipboard", "network"
 fill    = "#0D2434"
 radius  = 0
 padding = 10
+widget_spacing = 22
 
 # ---------- Widgets de la barra inferior ----------
 [widget.mem]
@@ -98,6 +99,7 @@ length = 12
 
 # ---------- Íconos de la barra de arriba: solo ícono, valor al pasar el mouse ----------
 [widget.volume]
+scale = 1.25
 show_label = false
 
 # hora y fecha juntas en el centro de la barra de arriba
@@ -106,18 +108,23 @@ format         = "{:%H:%M}  ·  {:%a %d %b %Y}"
 tooltip_format = "{:%A, %B %d, %Y}"
 
 [widget.network]
+scale = 1.25
 show_label = false
 
 [widget.media]
+scale = 1.25
 hide_when_no_media = true
 
 [widget.brightness]
+scale = 1.25
 peek = true
 
 [widget.bluetooth]
+scale = 1.25
 peek = true
 
 [widget.battery]
+scale = 1.25
 peek = true
 
 # ---------- Colores de SpiderOS en las apps GTK (Thunar, etc.) ----------
@@ -331,3 +338,31 @@ widget_order = [
 # escritorios por monitor: mostrar el nombre ("2") y no el número interno (12)
 [widget.workspaces]
 label_source = "name"
+
+# ---------- Tamaño de los íconos del recuadro de la derecha ----------
+[widget.wallpaper]
+scale = 1.25
+
+[widget.tray]
+scale = 1.25
+
+[widget.notifications]
+scale = 1.25
+
+[widget.clipboard]
+scale = 1.25
+
+[widget.session]
+scale = 1.25
+
+# ---------- Ubicación y clima (pantalla de bloqueo, centro de control) ----------
+[location]
+auto_locate = false
+address     = "Xalapa, Veracruz, México"
+latitude    = 19.5438      # respaldo si no encuentra la dirección
+longitude   = -96.9102
+
+[weather]
+enabled         = true
+refresh_minutes = 30
+unit            = "metric"   # °C

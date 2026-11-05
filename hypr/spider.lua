@@ -383,3 +383,12 @@ hl.on("window.close", function(w) if w then num_terminal[w.address] = nil end en
 pcall(function()
     for _, w in ipairs(hl.get_windows()) do poner_titulo(w) end
 end)
+
+-- ---------- Apps ----------
+pcall(hl.unbind, "SUPER + C")
+pcall(hl.unbind, "SUPER + B")
+hl.bind("SUPER + C", hl.dsp.exec_cmd("code --new-window"))      -- Visual Studio Code
+hl.bind("SUPER + B", hl.dsp.exec_cmd("dbeaver"))   -- DBeaver
+
+-- Íconos del escritorio (~/Escritorio) con dicons; espera a que cargue el escritorio
+hl.on("hyprland.start", function() hl.exec_cmd("sh -c 'sleep 3; dicons'") end)
