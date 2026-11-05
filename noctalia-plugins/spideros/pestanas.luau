@@ -144,72 +144,55 @@ local SEPARADOR = "@@SPIDEROS@@"
 
 local SALIDA = nil   -- pantalla de esta barra (ej. HDMI-A-1)
 
+local ordenFijo, siguienteFijo = {}, 0   -- orden fijo: en el que aparecieron las ventanas
+local ocupado, esperando = false, 0   -- evita amontonar consultas a Hyprland
+
+-- El filtrado pesado lo hace jq; el plugin solo recibe líneas cortas:
+--   A|<dirección ventana activa>
+--   W|<dirección>|<clase>|<título>     (solo las del escritorio visible en ESTA pantalla)
 local function refrescar()
-  noctalia.runAsync(
-    "hyprctl -j clients; echo '" .. SEPARADOR .. "'; hyprctl -j monitors; echo '" .. SEPARADOR .. "'; hyprctl -j activewindow",
-    function(r)
-      if r.exitCode ~= 0 or r.stdout == nil then return end
-      local partes = {}
-      for parte in (r.stdout .. SEPARADOR):gmatch("(.-)" .. SEPARADOR) do
-        table.insert(partes, parte)
-      end
+  if ocupado then
+    esperando += 1
+    if esperando < 10 then return end   -- si se atoró ~6 s, se da por perdida
+  end
+  ocupado, esperando = true, 0
 
-      local clientes = noctalia.json.decode(partes[1] or "")
-      local espacio  = noctalia.json.decode(partes[2] or "")
-      local ventana  = noctalia.json.decode(partes[3] or "")
-      if type(clientes) ~= "table" then return end
+  local cmd = [[
+ws=$(hyprctl -j monitors | jq -r --arg m "]] .. (SALIDA or "") .. [[" '((.[] | select(.name == $m) | .activeWorkspace.id) // ([.[] | select(.focused)][0].activeWorkspace.id)) // empty' | head -1)
+echo "A|$(hyprctl -j activewindow | jq -r '.address // ""')"
+[ -n "$ws" ] && hyprctl -j clients | jq -r --argjson ws "$ws" '.[] | select(.workspace.id == $ws and .mapped != false and .hidden != true) | "W|\(.address)|\(.initialClass // .class // "")|\((.title // "") | gsub("\\|"; "/") | gsub("\n"; " "))"'
+exit 0
+]]
 
-      local idEspacio = nil
-      if type(espacio) == "table" then
-        for _, m in ipairs(espacio) do
-          if (SALIDA and m.name == SALIDA) or (not SALIDA and m.focused) then
-            idEspacio = m.activeWorkspace and m.activeWorkspace.id or nil
-          end
+  noctalia.runAsync(cmd, function(r)
+    ocupado = false
+    if r.exitCode ~= 0 or r.stdout == nil then return end
+    local nuevas, act = {}, nil
+    for linea in r.stdout:gmatch("[^\n]+") do
+      local tipo = linea:sub(1, 1)
+      if tipo == "A" then
+        act = linea:sub(3)
+      elseif tipo == "W" then
+        local addr, clase, titulo = linea:match("^W|([^|]*)|([^|]*)|(.*)$")
+        if addr then
+          table.insert(nuevas, { address = addr, clase = clase, nombre = nombreApp(clase), titulo = titulo })
         end
       end
-      local nuevas = {}
-      for _, c in ipairs(clientes) do
-        local enEspacio = (idEspacio == nil) or (c.workspace and c.workspace.id == idEspacio)
-        if c.mapped ~= false and c.hidden ~= true and enEspacio then
-          local clase = c.initialClass or c.class or ""
-          table.insert(nuevas, {
-            address = c.address,
-            clase = clase,
-            nombre = nombreApp(clase),
-            titulo = c.title or "",
-          })
-        end
-      end
-
-      -- conservar el orden: las que ya estaban mantienen su lugar, las nuevas van al final
-      local porAddr = {}
-      for _, v in ipairs(nuevas) do porAddr[v.address] = v end
-      local ordenNuevo, ordenadas = {}, {}
-      for _, addr in ipairs(orden) do
-        if porAddr[addr] then
-          table.insert(ordenNuevo, addr)
-          table.insert(ordenadas, porAddr[addr])
-          porAddr[addr] = nil
-        end
-      end
-      for _, v in ipairs(nuevas) do
-        if porAddr[v.address] then
-          table.insert(ordenNuevo, v.address)
-          table.insert(ordenadas, v)
-        end
-      end
-      orden = ordenNuevo
-      ventanas = ordenadas
-      activa = (type(ventana) == "table") and ventana.address or nil
-      dibujar()
     end
-  )
+    for _, v in ipairs(nuevas) do
+      if not ordenFijo[v.address] then siguienteFijo += 1; ordenFijo[v.address] = siguienteFijo end
+    end
+    table.sort(nuevas, function(a, b) return ordenFijo[a.address] < ordenFijo[b.address] end)
+    ventanas = nuevas
+    activa = (act ~= nil and act ~= "") and act or nil
+    dibujar()
+  end)
 end
 
 function update()
   local okS, n = pcall(function() return barWidget.outputName() end)
   if okS and n and n ~= "" then SALIDA = n end
-  noctalia.setUpdateInterval(400)
+  noctalia.setUpdateInterval(600)
   refrescar()
 end
 
