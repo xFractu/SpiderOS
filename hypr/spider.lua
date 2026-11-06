@@ -157,7 +157,8 @@ hl.config({
 
 -- ---------- Super + Shift + V: todo el escritorio a cuadrícula (o de vuelta a flotante) ----------
 local modoCuadricula = {}   -- escritorios en modo cuadrícula
-hl.bind("SUPER + SHIFT + V", function()
+-- Modo cuadrícula del escritorio (Super + Shift + V y botón "View" de la barra)
+function spider_cuadricula()
     local activa = hl.get_active_window()
     if not activa or not activa.workspace then return end
     local idEspacio = activa.workspace.id
@@ -180,7 +181,8 @@ hl.bind("SUPER + SHIFT + V", function()
         end
         hl.dispatch(hl.dsp.window.float({ action = accion, window = w }))
     end
-end)
+end
+hl.bind("SUPER + SHIFT + V", spider_cuadricula)
 
 -- ---------- Noctalia vuelve sola al reconectar el monitor ----------
 -- Al cambiar el monitor de entrada (HDMI <-> DP) Noctalia se cierra; al volver el monitor se reinicia.

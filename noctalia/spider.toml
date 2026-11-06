@@ -5,11 +5,11 @@ source         = "custom"
 custom_palette = "SpiderOS"
 
 [bar.default]
-start              = ["margen_izq", "logo", "workspaces"]
+start              = ["margen_izq", "logo", "menu_inicio", "menu_file", "menu_gap", "menu_code", "menu_gap", "menu_view", "menu_gap", "menu_tools", "menu_gap", "menu_system", "menu_gap", "menu_help"]
 padding            = 0      # sin margen en los extremos: el recuadro queda pegado a la derecha
 capsule_thickness  = 1.0    # recuadro del mismo alto que la barra
 center             = ["clock"]
-end                = ["group:sistema"]
+end                = ["workspaces", "group:sistema"]
 position           = "top"
 margin_ends        = -2     # oculta los bordes de los lados
 margin_edge        = 0      # borde de arriba visible
@@ -104,7 +104,7 @@ show_label = false
 
 # hora y fecha juntas en el centro de la barra de arriba
 [widget.clock]
-format         = "{:%H:%M}  ·  {:%a %d %b %Y}"
+format         = "{:%a %d %b %Y}   ·   {:%H:%M}"
 tooltip_format = "{:%A, %B %d, %Y}"
 
 [widget.network]
@@ -126,6 +126,76 @@ peek = true
 [widget.battery]
 scale = 1.25
 peek = true
+
+
+# ---------- Menú de texto junto al logo ----------
+[widget.menu_inicio]
+type   = "spacer"
+length = 20
+
+[widget.menu_gap]
+type   = "spacer"
+length = 30
+
+[widget.menu_file]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "FILE"
+capsule = false
+
+[widget.menu_file.actions]
+left = "exec thunar"
+
+[widget.menu_code]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "CODE"
+capsule = false
+
+[widget.menu_code.actions]
+left = "exec code --new-window"
+
+[widget.menu_view]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "VIEW"
+capsule = false
+
+[widget.menu_view.actions]
+left = "exec hyprctl eval 'spider_cuadricula()'"
+
+[widget.menu_tools]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "TOOLS"
+capsule = false
+
+[widget.menu_tools.actions]
+left = "exec /home/fractu/.config/hypr/scripts/herramientas.sh"
+
+[widget.menu_system]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "SYSTEM"
+capsule = false
+
+[widget.menu_system.actions]
+left = "settings-toggle"
+
+[widget.menu_help]
+font_scale = 0.8
+type    = "custom_button"
+glyph   = ""
+label   = "HELP"
+capsule = false
+
+[widget.menu_help.actions]
+left = "exec /home/fractu/.config/hypr/scripts/atajos.sh"
 
 # ---------- Colores de SpiderOS en las apps GTK (Thunar, etc.) ----------
 [theme.templates]
